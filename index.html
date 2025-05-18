@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerador de Cartelas de Bingo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .cartela { border: 2px solid #000; padding: 20px; width: 600px; }
+        .bingo-grid { display: grid; grid-template-columns: repeat(5, 1fr); margin-bottom: 20px; }
+        .bingo-cell { border: 1px solid #ccc; text-align: center; padding: 10px; font-size: 18px; }
+        .premios { margin-top: 20px; }
+        .premio { margin-bottom: 10px; }
+        .premio strong { display: block; margin-bottom: 5px; }
+        button { margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div id="cartela" class="cartela">
+    <h2>Cartela de Bingo</h2>
+    <div class="bingo-grid" id="bingoGrid"></div>
+
+    <div class="premios" id="premios">
+        <h3>Prêmios</h3>
+        <!-- Prêmios aparecerão aqui -->
+    </div>
+</div>
+
+<button onclick="gerarCartela()">Gerar Nova Cartela</button>
+<button onclick="gerarPDF()">Baixar PDF</button>
+
+<script>
+function gerarCartela() {
+    // Gerar 25 números únicos entre 1 e 75
+    let numeros = [];
+    while (numeros.length < 25) {
+        let n = Math.floor(Math.random() * 75) + 1;
+        if (!numeros.includes(n)) {
+            numeros.push(n);
+        }
+    }
+
+    const bingoGrid = document.getElementById('bingoGrid');
+    bingoGrid.innerHTML = '';
+    numeros.forEach(num => {
+        const cell = document.createElement('div');
+        cell.className = 'bingo-cell';
+        cell.textContent = num;
+        bingoGrid.appendChild(cell);
+    });
+
+    // Gerar prêmios
+    const premiosDiv = document.getElementById('premios');
+    premiosDiv.innerHTML = '<h3>Prêmios</h3>'; // Limpar antes
+
+    for (let i = 1; i <= 5; i++) {
+        let numerosPremio = [];
+        while (numerosPremio.length < 5) {
+            let n = Math.floor(Math.random() * 75) + 1;
+            if (!numerosPremio.includes(n)) {
+                numerosPremio.push(n);
+            }
+        }
+
+        const premio = document.createElement('div');
+        premio.className = 'premio';
+        premio.innerHTML = `<strong>Prêmio ${i}</strong> ${numerosPremio.join(', ')}`;
+        premiosDiv.appendChild(premio);
+    }
+}
+
+function gerarPDF() {
+    const element = document.getElementById('cartela');
+    html2pdf().from(element).save('cartela-bingo.pdf');
+}
+
+// Gerar uma cartela na primeira vez
+gerarCartela();
+</script>
+
+</body>
+</html>

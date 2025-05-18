@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Bingo das Mães</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 30px;
+            text-align: center;
+            background: #fff;
+        }
+
+        .cartela-principal,
+        .mini-cartelas {
+            border: 2px solid #000;
+            padding: 20px;
+            margin-bottom: 30px;
+            background: #f9f9f9;
+        }
+
+        .cartela-principal {
+            width: 700px;
+            margin: auto;
+        }
+
+        .mini-cartelas {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .mini-cartela {
+            width: 200px;
+            border: 2px solid #000;
+            padding: 10px;
+            background: #fff;
+        }
+
+        .header-info {
+            margin-bottom: 20px;
+        }
+
+        .header-info h1 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .header-info p {
+            margin: 3px 0;
+            font-size: 16px;
+        }
+
+        .bingo-header {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .bingo-header div {
+            padding: 5px;
+            background: #2e8b57;
+            color: white;
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+        }
+
+        .bingo-cell {
+            border: 1px solid #000;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #ffffff;
+        }
+
+        .mini-bingo-cell {
+            border: 1px solid #000;
+            height: 30px;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .premios {
+            text-align: left;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .premios div {
+            margin-bottom: 8px;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        button {
+            margin: 20px 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #246b45;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="conteudo-pdf">
+
+        <div class="cartela-principal">
+            <div class="header-info">
+                <h1>Bingo das Mães</h1>
+                <p><strong>Em frente à casa de Miriam Corretora</strong></p>
+                <p>Vila Rica - Jaboatão dos Guararapes - PE</p>
+                <p><strong>Data:</strong> 19 de Maio de 2019 (domingo)</p>
+                <p><strong>Horário:</strong> 16:00h</p>
+            </div>
+
+            <div class="bingo-header">
+                <div>B</div>
+                <div>I</div>
+                <div>N</div>
+                <div>G</div>
+                <div>O</div>
+            </div>
+
+            <div class="bingo-grid" id="bingoGridPrincipal"></div>
+
+            <div class="premios" id="premios">
+                <h3>Prêmios:</h3>
+            </div>
+        </div>
+
+        <div class="mini-cartelas" id="miniCartelas">
+            <!-- Mini cartelas serão inseridas aqui -->
+        </div>
+
+        <div class="footer">
+            <p><strong>Organização:</strong> Miriam Negreiros</p>
+            <p><strong>Apoio Cultural:</strong> Lica do Micro-Ônibus</p>
+            <h2>Boa Sorte!!!</h2>
+        </div>
+
+    </div>
+
+    <button onclick="gerarCartela()">Gerar Nova Cartela</button>
+    <button onclick="gerarPDF()">Baixar PDF</button>
+
+    <script>
+        const premiosLista = [
+            "1.º FERRO DE PASSAR",
+            "2.º CHAPINHA",
+            "3.º LIQUIDIFICADOR",
+            "4.º VENTILADOR",
+            "5.º CELULAR"
+        ];
+
+        function gerarNumeros() {
+            let numeros = [];
+            while (numeros.length < 25) {
+                let n = Math.floor(Math.random() * 75) + 1;
+                if (!numeros.includes(n)) {
+                    numeros.push(n);
+                }
+            }
+            return numeros;
+        }
+
+        function montarGrid(idGrid, numeros, mini = false) {
+            const grid = document.getElementById(idGrid);
+            grid.innerHTML = '';
+            numeros.forEach((num, idx) => {
+                const cell = document.createElement('div');
+                cell.className = mini ? 'mini-bingo-cell' : 'bingo-cell';
+                cell.textContent = (idx === 12) ? "★" : num;
+                grid.appendChild(cell);
+            });
+        }
+
+        function gerarCartela() {
+            const numeros = gerarNumeros();
+
+            montarGrid('bingoGridPrincipal', numeros);
+
+            // Prêmios
+            const premiosDiv = document.getElementById('premios');
+            premiosDiv.innerHTML = '<h3>Prêmios:</h3>';
+            premiosLista.forEach((premioNome) => {
+                let numerosPremio = [];
+                while (numerosPremio.length < 5) {
+                    let n = Math.floor(Math.random() * 75) + 1;
+                    if (!numerosPremio.includes(n)) {
+                        numerosPremio.push(n);
+                    }
+                }
+                const premio = document.createElement('div');
+                premio.innerHTML = `<strong>${premioNome}:</strong> ${numerosPremio.join(', ')}`;
+                premiosDiv.appendChild(premio);
+            });
+
+            // Mini cartelas
+            const miniCartelasDiv = document.getElementById('miniCartelas');
+            miniCartelasDiv.innerHTML = '';
+            for (let i = 0; i < 6; i++) { // 6 mini cartelas
+                const mini = document.createElement('div');
+                mini.className = 'mini-cartela';
+
+                const miniHeader = document.createElement('div');
+                miniHeader.className = 'bingo-header';
+                ['B', 'I', 'N', 'G', 'O'].forEach(letra => {
+                    const div = document.createElement('div');
+                    div.textContent = letra;
+                    div.style.fontSize = '16px';
+                    div.style.background = '#2e8b57';
+                    div.style.color = '#fff';
+                    miniHeader.appendChild(div);
+                });
+
+                const miniGrid = document.createElement('div');
+                miniGrid.className = 'bingo-grid';
+                miniGrid.id = `miniGrid${i}`;
+
+                mini.appendChild(miniHeader);
+                mini.appendChild(miniGrid);
+                miniCartelasDiv.appendChild(mini);
+
+                montarGrid(`miniGrid${i}`, numeros, true);
+            }
+        }
+
+        function gerarPDF() {
+            const element = document.getElementById('conteudo-pdf');
+            html2pdf().from(element).save('bingo-cartela.pdf');
+        }
+
+        // Gerar uma cartela ao abrir
+        gerarCartela();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cartelas de Bingo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 20px;
+            text-align: center;
+            background-color: #f0f8ff;
+        }
+
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #2e8b57;
+        }
+
+        .cartelas-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .cartela {
+            border: 3px solid #000;
+            padding: 20px;
+            width: 320px;
+            background-color: #ffffff;
+            box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .bingo-header {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .bingo-header div {
+            padding: 10px;
+            color: white;
+        }
+
+        .bingo-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .bingo-cell {
+            border: 1px solid #000;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+
+        .premios {
+            text-align: left;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .premio {
+            margin-bottom: 10px;
+        }
+
+        button {
+            margin: 20px 10px;
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #246b45;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🎉 Festa do Bingo 🎉</h1>
+
+    <div class="cartelas-container" id="cartelas-container">
+        <!-- Cartelas serão geradas aqui -->
+    </div>
+
+    <button onclick="gerarVariasCartelas(5)">Gerar 5 Cartelas</button>
+    <button onclick="gerarPDF()">Baixar PDF</button>
+
+    <script>
+        const listaPremios = [
+            "Liquidificador",
+            "Batedeira",
+            "Panela de Pressão",
+            "Air-Fryer",
+            "Celular"
+        ];
+
+        const coresColunas = ['#ff4d4d', '#4da6ff', '#ffff66', '#66ff66', '#ffa64d']; // Cores para B, I, N, G, O
+
+        function gerarCartela() {
+            // Criar container da cartela
+            const cartela = document.createElement('div');
+            cartela.className = 'cartela';
+
+            // Cabeçalho BINGO colorido
+            const header = document.createElement('div');
+            header.className = 'bingo-header';
+            ['B', 'I', 'N', 'G', 'O'].forEach((letra, idx) => {
+                const div = document.createElement('div');
+                div.textContent = letra;
+                div.style.backgroundColor = coresColunas[idx];
+                header.appendChild(div);
+            });
+            cartela.appendChild(header);
+
+            // Números da cartela
+            const numeros = [];
+            while (numeros.length < 25) {
+                let n = Math.floor(Math.random() * 75) + 1;
+                if (!numeros.includes(n)) {
+                    numeros.push(n);
+                }
+            }
+
+            const bingoGrid = document.createElement('div');
+            bingoGrid.className = 'bingo-grid';
+            numeros.forEach((num, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'bingo-cell';
+                cell.textContent = (index === 12) ? "★" : num; // Espaço Livre no meio
+                bingoGrid.appendChild(cell);
+            });
+            cartela.appendChild(bingoGrid);
+
+            // Prêmios
+            const premiosDiv = document.createElement('div');
+            premiosDiv.className = 'premios';
+            premiosDiv.innerHTML = '<h4>Prêmios:</h4>';
+
+            listaPremios.forEach((premioNome) => {
+                let numerosPremio = [];
+                while (numerosPremio.length < 5) {
+                    let n = Math.floor(Math.random() * 75) + 1;
+                    if (!numerosPremio.includes(n)) {
+                        numerosPremio.push(n);
+                    }
+                }
+                const premio = document.createElement('div');
+                premio.className = 'premio';
+                premio.innerHTML = `<strong>${premioNome}:</strong> ${numerosPremio.join(', ')}`;
+                premiosDiv.appendChild(premio);
+            });
+
+            cartela.appendChild(premiosDiv);
+
+            return cartela;
+        }
+
+        function gerarVariasCartelas(qtd) {
+            const container = document.getElementById('cartelas-container');
+            container.innerHTML = ''; // Limpar antes
+            for (let i = 0; i < qtd; i++) {
+                container.appendChild(gerarCartela());
+            }
+        }
+
+        function gerarPDF() {
+            const element = document.getElementById('cartelas-container');
+            html2pdf().from(element).save('cartelas-bingo.pdf');
+        }
+
+        // Gerar cartelas ao abrir
+        gerarVariasCartelas(4);
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cartela de Bingo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    .cartela {
+      border: 2px solid #000;
+      padding: 20px;
+      width: 700px;
+      margin: 0 auto;
+    }
+    .bingo-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 5px;
+      margin-bottom: 20px;
+    }
+    .bingo-cell {
+      border: 1px solid #000;
+      height: 60px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 22px;
+      font-weight: bold;
+      background-color: #f9f9f9;
+    }
+    .bingo-header {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      font-size: 26px;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .premios {
+      text-align: left;
+      margin-top: 20px;
+    }
+    .premio {
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="cartela" class="cartela">
+  <h2>Cartela de Bingo</h2>
+
+  <div class="bingo-header">
+    <div>B</div>
+    <div>I</div>
+    <div>N</div>
+    <div>G</div>
+    <div>O</div>
+  </div>
+
+  <div class="bingo-grid" id="bingoGrid"></div>
+
+  <div class="premios" id="premios">
+    <h3>Prêmios:</h3>
+    <!-- Prêmios preenchidos via JavaScript -->
+  </div>
+</div>
+
+<button onclick="gerarCartela()">Gerar Nova Cartela</button>
+<button onclick="gerarPDF()">Baixar PDF</button>
+
+<script>
+const listaPremios = [
+  "Liquidificador",
+  "Batedeira",
+  "Panela de Pressão",
+  "Air-Fryer",
+  "Celular"
+];
+
+function gerarCartela() {
+  // Gerar 25 números únicos para a cartela
+  let numeros = [];
+  while (numeros.length < 25) {
+    let n = Math.floor(Math.random() * 75) + 1;
+    if (!numeros.includes(n)) {
+      numeros.push(n);
+    }
+  }
+
+  const bingoGrid = document.getElementById('bingoGrid');
+  bingoGrid.innerHTML = '';
+  numeros.forEach((num, index) => {
+    const cell = document.createElement('div');
+    cell.className = 'bingo-cell';
+    // Central da cartela pode ser "Livre" (Free Space)
+    if (index === 12) {
+      cell.textContent = "★";
+    } else {
+      cell.textContent = num;
+    }
+    bingoGrid.appendChild(cell);
+  });
+
+  // Gerar números para cada prêmio
+  const premiosDiv = document.getElementById('premios');
+  premiosDiv.innerHTML = '<h3>Prêmios:</h3>';
+
+  listaPremios.forEach((premioNome, i) => {
+    let numerosPremio = [];
+    while (numerosPremio.length < 5) {
+      let n = Math.floor(Math.random() * 75) + 1;
+      if (!numerosPremio.includes(n)) {
+        numerosPremio.push(n);
+      }
+    }
+
+    const premio = document.createElement('div');
+    premio.className = 'premio';
+    premio.innerHTML = `<strong>${premioNome}:</strong> ${numerosPremio.join(', ')}`;
+    premiosDiv.appendChild(premio);
+  });
+}
+
+function gerarPDF() {
+  const element = document.getElementById('cartela');
+  html2pdf().from(element).save('cartela-bingo.pdf');
+}
+
+// Gerar cartela inicial
+gerarCartela();
+</script>
+
+</body>
+</html>
