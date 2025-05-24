@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Bingo das Mães - Versão 2</title>
+  <link rel="shortcut icon" href="images/icon_kalangos.ico" type="image/x-icon">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <link rel="shortcut icon" href="img/icon_kalangos.ico" type="image/x-icon">
+  <link rel="stylesheet" href="styles.css">
+
+</head>
+
+<body>
+
+  <div class="conteudo-pdf" id="conteudo-pdf">
+    <!-- Cartelas serão geradas aqui -->
+  </div>
+
+  <br>
+
+  <label for="qtd">Quantas cartelas para gerar?</label>
+  <input type="number" id="qtd" value="1" min="1" max="20" style="width: 60px;">
+  <br>
+
+  <button onclick="gerarTodasCartelas()">Gerar Cartelas</button>
+  <button onclick="gerarPDF()">Baixar PDF</button>
+
+  <script>
+    const premiosLista = [
+      "1.º SECADOR",
+      "2.º FERRO DE PASSAR",
+      "3.º SANDUICHEIRA",
+      "4.º RELÓGIO DE PAREDE",
+      "5.º VENTILADOR E 1 MINISOM"
+    ];
+
+    function gerarNumeros() {
+      let numeros = [];
+      while (numeros.length < 25) {
+        let n = Math.floor(Math.random() * 75) + 1;
+        if (n != 31) {
+          if (!numeros.includes(n)) {
+            numeros.push(n);
+          }
+        }
+      }
+      return numeros;
+    }
+
+    function montarGrid(gridElement, numeros, mini = false) {
+      gridElement.innerHTML = '';
+      numeros.forEach((num, idx) => {
+        const cell = document.createElement('div');
+        cell.className = mini ? 'mini-bingo-cell' : 'bingo-cell';
+        cell.textContent = (idx === 12) ? "★" : num;
+        gridElement.appendChild(cell);
+      });
+    }
+
+    function gerarCartela(cartelaNum) {
+      const cartelaDiv = document.createElement('div');
+      cartelaDiv.className = 'cartela cartela-principal';
+
+      // Header
+      cartelaDiv.innerHTML = `
+  <div class="header-info" style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+    <div class="coluna-centro" style="flex: 2; text-align: center;">
+      <h1>Bingo das Mães</h1>
+      <p><strong>Avenida Três</strong></p>
+      <p><strong>Data:</strong> 25/05/2025 (domingo)</p>
+      <p><strong>Horário:</strong> 16:00hs</p>
+      <p class="cartela-numero">Cartela Nº ${cartelaNum}</p>
+    </div>
+    <div class="coluna-direita" style="flex: 2; justify-content: center;">
+      <img src="img/jaboatao.jpg" alt="Logo Conselho" style="max-height: 50px;">
+      <img src="img/andrea.jpg" alt="Logo Conselho" style="max-height: 50px;">
+    </div>
+    <div class="coluna-direita" style="flex: 2; justify-content: center;">
+      <img src="img/charles.jpg" alt="Kalango's Studio" style="max-height: 50px;">
+      <img src="img/jwd.jpg" alt="Kalango's Studio" style="max-height: 50px;">
+    </div>
+    
+  </div>
+`;
+
+
+      const numeros = gerarNumeros();
+
+      const coresColunas = ['#ff4d4d', '#4da6ff', '#fb7991', '#66ff66', '#ffa64d']; // Cores para B, I, N, G, O
+
+      // Grid principal
+      const headerBingo = document.createElement('div');
+      headerBingo.className = 'bingo-header';
+      ['B', 'I', 'N', 'G', 'O'].forEach((letra, idx) => {
+        const div = document.createElement('div');
+        div.textContent = letra;
+        div.style.backgroundColor = coresColunas[idx];
+        headerBingo.appendChild(div);
+      });
+
+      cartelaDiv.appendChild(headerBingo);
+
+      const gridPrincipal = document.createElement('div');
+      gridPrincipal.className = 'bingo-grid';
+      montarGrid(gridPrincipal, numeros);
+      cartelaDiv.appendChild(gridPrincipal);
+
+      // Prêmios
+      const premiosDiv = document.createElement('div');
+      premiosDiv.className = 'premios';
+      premiosDiv.innerHTML = '<h2 style="text-align: center;">Prêmios</h2> <p style="text-align: center; font-size: 10px;">Imagens meramente ilustrativa.</p>';
+
+      const premiosGrid = document.createElement('div');
+      premiosGrid.style.display = 'grid';
+      premiosGrid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+      premiosGrid.style.gap = '10px';
+      premiosGrid.style.marginTop = '10px';
+
+      premiosLista.forEach((premioNome, index) => {
+        const premioItem = document.createElement('div');
+        premioItem.style.textAlign = 'center';
+        premioItem.style.fontSize = '2rem';
+        premioItem.style.border = '2px solid red';
+
+        // Caminho das imagens: "images/premio_1.png", "premio_2.png", etc.
+        const img = document.createElement('img');
+        img.src = `img/premio_${index + 1}.jpg`; // ajuste conforme seus nomes
+        img.alt = premioNome;
+        img.style.maxHeight = '80px';
+        img.style.width = 'auto';
+        img.style.display = 'block';
+        img.style.margin = '0 auto';
+
+        const legenda = document.createElement('div');
+        legenda.textContent = premioNome;
+        legenda.style.fontSize = '12px';
+        legenda.style.marginTop = '5px';
+        legenda.style.fontWeight = 'bold';
+
+        premioItem.appendChild(img);
+        premioItem.appendChild(legenda);
+        premiosGrid.appendChild(premioItem);
+      });
+
+      premiosDiv.appendChild(premiosGrid);
+
+      cartelaDiv.appendChild(premiosDiv);
+
+      // Mini Cartelas
+      const miniCartelas = document.createElement('div');
+      miniCartelas.className = 'mini-cartelas';
+      for (let i = 0; i < 4; i++) {
+        const mini = document.createElement('div');
+        mini.className = 'mini-cartela';
+        mini.innerHTML = `
+      <div class="cartela-numero">
+        
+        Cartela Nº ${cartelaNum}
+      </div>
+    `;
+
+        const headerMini = document.createElement('div');
+        headerMini.className = 'bingo-header';
+        ['B', 'I', 'N', 'G', 'O'].forEach(letra => {
+          const div = document.createElement('div');
+          div.style.fontSize = '14px';
+          div.style.background = '#FB7991';
+          div.style.color = '#fff';
+          div.textContent = letra;
+          headerMini.appendChild(div);
+        });
+        mini.appendChild(headerMini);
+
+        const gridMini = document.createElement('div');
+        gridMini.className = 'bingo-grid';
+        montarGrid(gridMini, numeros, true);
+        mini.appendChild(gridMini);
+
+        miniCartelas.appendChild(mini);
+      }
+      cartelaDiv.appendChild(miniCartelas);
+
+      // Footer
+      const footer = document.createElement('div');
+      footer.className = 'footer';
+      footer.innerHTML = `
+  <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+    <div class="footer-coluna" style="flex: 2; text-align: center;">
+      <img src="img/kalangosStudio01.png" alt="Kalango's Studio" style="max-height: 100px;">
+      <img src="img/qrCodeKalangos.png" alt="Kalango's Studio" style="max-height: 100px;">
+    </div>
+    <div class="footer-coluna" style="flex: 1; text-align: center;">
+      <h2>Apoio Cultural:</h2>
+      <p><strong>Romildo Jr.</strong></p>
+      <p><strong>Miriam Negreiros</strong></p>
+      <p><strong>Romildo Jr.</strong></p>
+      <p><strong>Miriam Negreiros</strong></p>
+    </div>
+    <div class="footer-coluna" style="flex: 2; text-align: center;">
+      <h2>Organização:</h2>
+      <p><strong>Thalisson & Zé Bocão</strong></p>
+      <p style="font-size: 20px;"><strong>Cartela Grátis!!!</strong></p>
+      <h2>Boa Sorte!!!</h2>
+    </div>
+  </div>
+`;
+
+      cartelaDiv.appendChild(footer);
+
+      return cartelaDiv;
+    }
+
+    function gerarTodasCartelas() {
+      const container = document.getElementById('conteudo-pdf');
+      container.innerHTML = '';
+
+      const qtd = parseInt(document.getElementById('qtd').value);
+      for (let i = 1; i <= qtd; i++) {
+        container.appendChild(gerarCartela(i));
+      }
+    }
+
+    function gerarPDF() {
+      const element = document.getElementById('conteudo-pdf');
+      html2pdf().from(element).set({
+        margin: 5,
+        filename: 'bingo-cartelas.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 0.85 }, // << DIMINUI A ESCALA
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).save();
+
+    }
+
+    // Gera a primeira cartela automaticamente
+    gerarTodasCartelas();
+  </script>
+
+</body>
+
+</html>
